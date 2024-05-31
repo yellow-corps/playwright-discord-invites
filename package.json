@@ -1,0 +1,22 @@
+{
+  "name": "playwright-discord-invites",
+  "version": "1.0.0",
+  "description": "Creates discord invites by clicking the generate button a bunch of times using Playwright 👆",
+  "author": "SpiltCoffee",
+  "license": "MIT",
+  "type": "module",
+  "main": "index.ts",
+  "scripts": {
+    "postinstall": "playwright install",
+    "start": "tsx index.ts",
+    "login": "npm start login",
+    "generate": "npm start generate"
+  },
+  "dependencies": {
+    "playwright": "^1.44.1",
+    "tsx": "^4.11.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.13"
+  }
+}
