@@ -60,6 +60,7 @@ if (mode === Mode.LOGIN) {
 
   const page = await browser.newPage();
 
+  let pageReloaded = false;
   async function reloadPage() {
     await page.goto(`https://discord.com/channels/${serverId}/${channelId}`);
     await page
@@ -67,11 +68,14 @@ if (mode === Mode.LOGIN) {
       .first()
       .getByLabel("Create Invite")
       .click();
+    pageReloaded = true;
   }
 
   await reloadPage();
 
-  for (const i of Array(noOfInvites).keys()) {
+  let i = 0;
+
+  while (i < noOfInvites) {
     try {
       await expect(await page.getByLabel("Invite link")).not.toHaveValue(
         "https://discord.gg/"
@@ -113,8 +117,15 @@ if (mode === Mode.LOGIN) {
       );
 
       const inviteLink = await page.getByLabel("Invite link").inputValue();
-      console.log(inviteLink);
-      inviteLinks.push(inviteLink);
+
+      if (pageReloaded) {
+        console.log("burning a link as we had to reload");
+        pageReloaded = false;
+      } else {
+        console.log(inviteLink);
+        inviteLinks.push(inviteLink);
+        i++;
+      }
 
       // let's not go too fast, or we might get rate limited lol
       await page.waitForTimeout(6000);
