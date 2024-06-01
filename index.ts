@@ -3,15 +3,19 @@ import { expect } from "playwright/test";
 import fs from "fs";
 import path from "path";
 
+process.env.TEMP = process.env.TEMP || ".";
+
+const PROFILE_FOLDER = `${process.env.TEMP}\playwright-discord-invites`;
+
 enum Mode {
   LOGIN = "login",
+  LOGOUT = "logout",
   GENERATE = "generate"
 }
 
 const [mode, serverId, channelId, rawNoOfInvites] = <[Mode, ...string[]]>(
   process.argv.slice(2)
 );
-let noOfInvites: number;
 
 if (!Object.values(Mode).includes(mode)) {
   throw new Error(`Unknown mode '${mode}'`);
@@ -33,20 +37,25 @@ if (mode === Mode.GENERATE) {
 
 const headless = !process.env.HEADED && mode === Mode.GENERATE;
 
-const browser = await chromium.launchPersistentContext(
-  `${process.env.TEMP}\playwright-discord-invites`,
-  { headless }
-);
-
 if (mode === Mode.LOGIN) {
+  const browser = await chromium.launchPersistentContext(PROFILE_FOLDER, {
+    headless
+  });
+
   const page = await browser.newPage();
   page.goto("https://discord.com/login");
   browser.addListener("close", () =>
     console.log("Cool, now you should be able to generate links.")
   );
   console.log("Once you've logged into Discord, close the browser.");
+} else if (mode === Mode.LOGOUT) {
+  fs.rmSync(PROFILE_FOLDER, { recursive: true, force: true });
 } else {
-  noOfInvites = Number.parseInt(rawNoOfInvites);
+  const browser = await chromium.launchPersistentContext(PROFILE_FOLDER, {
+    headless
+  });
+
+  let noOfInvites = Number.parseInt(rawNoOfInvites);
   const inviteLinks: string[] = [];
 
   const page = await browser.newPage();
@@ -119,7 +128,7 @@ if (mode === Mode.LOGIN) {
 
   if (inviteLinks.length) {
     const inviteLinksCsvFile = path.join(
-      fs.mkdtempSync(path.resolve(process.env.TEMP || ".", "invites")),
+      fs.mkdtempSync(path.resolve(process.env.TEMP, "invites")),
       "invites.csv"
     );
     fs.writeFileSync(inviteLinksCsvFile, inviteLinks.join("\n"));

@@ -10,7 +10,8 @@
     "postinstall": "playwright install",
     "start": "tsx index.ts",
     "login": "npm start login",
-    "generate": "npm start generate"
+    "generate": "npm start generate",
+    "logout": "npm start logout"
   },
   "dependencies": {
     "playwright": "^1.44.1",

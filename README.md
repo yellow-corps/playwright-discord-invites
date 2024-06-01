@@ -39,3 +39,11 @@ Links will be output into the console.
 ```
 npm run generate <server-id> <channel-id> <number-of-invites>
 ```
+
+### "Logout" of Discord
+
+Clean up the profile folder created in the temp directory
+
+```
+npm run logout
+```
