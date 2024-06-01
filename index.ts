@@ -97,7 +97,7 @@ if (mode === Mode.LOGIN) {
     console.log(await page.getByLabel("Invite link").inputValue());
 
     // let's not go too fast, or we might get rate limited lol
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(6000);
   }
   browser.close();
 }
