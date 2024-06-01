@@ -86,7 +86,7 @@ if (mode === Mode.LOGIN) {
       await page.getByRole("button", { name: "Edit invite link" }).click();
 
       // only need to set the fields on the first open of the edit invite link dialog
-      if (i === 1) {
+      if (pageReloaded) {
         // assuming the correct dropdown by finding the one that says "7 days"
         await page.getByRole("button", { name: "7 days" }).click();
         await page.getByRole("option", { name: "Never" }).click();
