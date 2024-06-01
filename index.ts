@@ -1,5 +1,7 @@
 import { chromium } from "playwright";
 import { expect } from "playwright/test";
+import fs from "fs";
+import path from "path";
 
 enum Mode {
   LOGIN = "login",
@@ -29,7 +31,7 @@ if (mode === Mode.GENERATE) {
   }
 }
 
-const headless = mode === Mode.GENERATE;
+const headless = !process.env.HEADED && mode === Mode.GENERATE;
 
 const browser = await chromium.launchPersistentContext(
   `${process.env.TEMP}\playwright-discord-invites`,
@@ -45,6 +47,7 @@ if (mode === Mode.LOGIN) {
   console.log("Once you've logged into Discord, close the browser.");
 } else {
   noOfInvites = Number.parseInt(rawNoOfInvites);
+  const inviteLinks: string[] = [];
 
   const page = await browser.newPage();
 
@@ -102,6 +105,7 @@ if (mode === Mode.LOGIN) {
 
       const inviteLink = await page.getByLabel("Invite link").inputValue();
       console.log(inviteLink);
+      inviteLinks.push(inviteLink);
 
       // let's not go too fast, or we might get rate limited lol
       await page.waitForTimeout(6000);
@@ -112,4 +116,15 @@ if (mode === Mode.LOGIN) {
     }
   }
   browser.close();
+
+  if (inviteLinks.length) {
+    const inviteLinksCsvFile = path.join(
+      fs.mkdtempSync(path.resolve(process.env.TEMP || ".", "invites")),
+      "invites.csv"
+    );
+    fs.writeFileSync(inviteLinksCsvFile, inviteLinks.join("\n"));
+    console.log(`dumped links into ${inviteLinksCsvFile}`);
+  } else {
+    throw new Error("failed to generate any links; something went REAL wrong");
+  }
 }
